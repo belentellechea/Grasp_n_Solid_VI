@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Full_GRASP_And_SOLID
 {
@@ -61,6 +62,46 @@ namespace Full_GRASP_And_SOLID
             }
 
             return result;
+        }
+
+        //Agregado por Grasp ISP
+        public int GetCookTime()
+        {
+            int cookTime = 0;
+
+            foreach (BaseStep step in this.steps)
+            {
+                cookTime = cookTime + step.Time;
+            }
+
+            return cookTime;
+        }
+
+        //Agregado por Grasp & Solid VI
+        public bool Cooked {get; private set;} = false;
+
+        //Agregado por Adapter (innerclass)
+        public class RecipeAdapter : TimerClient
+        {
+            private Recipe recipe;
+            public RecipeAdapter(Recipe recipe)
+            {
+                this.recipe = recipe;
+            }
+            public void TimeOut()
+            {
+                this.recipe.Cooked = true;
+            }    
+        }
+
+        //Agregado por ISP
+        public void Cook()
+        {
+            RecipeAdapter timerClient = new RecipeAdapter(this);
+            int overallTime = this.GetCookTime();
+            CountdownTimer timer = new CountdownTimer();
+            timer.Register(overallTime,timerClient);
+
         }
     }
 }
